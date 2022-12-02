@@ -4,6 +4,8 @@ services:
     build: .
     init: true
     restart: always
+    environment:
+      - WEB_HOST=https://neoscam.kokoa.dev
     ports:
       - "127.0.0.1:5055:3000"
     volumes:
