@@ -48,9 +48,7 @@ export class WebSocketPicture {
 
         this.ws.send(`URL:${HOST}/images/${this.uuid}.png`)
         console.log("WebHook Send Done.")
-        setTimeout(() => {
-          this.ws.close()
-        },1000)
+        this.ws.close()
         return
       }
     })
