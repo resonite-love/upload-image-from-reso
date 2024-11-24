@@ -1,9 +1,10 @@
 import {WebSocket} from "ws";
 import http from "http";
-import {createCanvas} from "canvas";
+import {Canvas, CanvasRenderingContext2D, createCanvas} from "canvas";
 import * as fs from "fs";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import axios from "axios"
+
 const HOST = process.env.WEB_HOST || "https://kokoa.kokopi.me"
 
 export class WebSocketPicture {
@@ -14,10 +15,11 @@ export class WebSocketPicture {
   constructor(ws: WebSocket, req: http.IncomingMessage) {
     this.ws = ws
     this.uuid = uuidv4()
-    const canvas = createCanvas(1280, 720)
-    const ctx = canvas.getContext('2d')
+    let canvas = createCanvas(1280, 720)
+    let ctx = canvas.getContext('2d')
     const split = 1
-    const wd = 1280 / split
+    let wd = 1280
+    let hg = 720
     const length = 6
     let x = 0;
     let y = 0;
@@ -25,6 +27,15 @@ export class WebSocketPicture {
     this.ws.on("message", async (msg) => {
       // console.log(msg.toString())
       const data = msg.toString()
+
+      if(data.startsWith("SIZE:")) {
+        const size = data.replace("SIZE:", "").split(",")
+        wd = parseInt(size[0])
+        hg = parseInt(size[1])
+        canvas = createCanvas(parseInt(size[0]), parseInt(size[1]))
+        ctx = canvas.getContext('2d')
+        return
+      }
 
       if(data.startsWith("&")) {
         this.url = data.replace("&", "")
@@ -37,7 +48,7 @@ export class WebSocketPicture {
       }
       y += 1
 
-      if(y == 720) {
+      if(y == hg) {
         const buffer = canvas.toBuffer('image/png')
         fs.writeFileSync(`./images/${this.uuid}.png`, buffer)
         if(this.url) {
